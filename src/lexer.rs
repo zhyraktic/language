@@ -66,6 +66,13 @@ impl Lexer {
             None => Ok(Token::Eof),
             Some(c) => match c {
                 '+' => Ok(Token::Plus),
+                '-' => Ok(Token::Minus),
+                '*' => Ok(Token::Star),
+                '/' => Ok(Token::Slash),
+                '=' => Ok(Token::Equal),
+                '(' => Ok(Token::LParen),
+                ')' => Ok(Token::RParen),
+                ';' => Ok(Token::Semicolon),
                 _ => Err(format!(
                     "Unexpected character '{}' on line {}",
                     c, self.cline
