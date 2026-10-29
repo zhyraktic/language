@@ -1,0 +1,25 @@
+#[derivew(Debug, Clone, PartialEq)]
+
+pub enum Token {
+    // literals
+    Number(f64),
+    Ident(String),
+    Str(String),
+
+    // operators
+    Plus,
+    Minus,
+    Star,
+    Slash,
+    Equal,
+
+
+    // punctuation
+    Lparen,
+    Rparen,
+    Semicolon
+    
+    // keywords
+    Let,
+    Eof,
+  }
