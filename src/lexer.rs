@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Token {
     // literals
     Number(f64),
@@ -45,11 +45,11 @@ impl Lexer {
         }
     }
 
-    pub fn peek(&self) -> Option<char> {
+    fn peek(&self) -> Option<char> {
         self.chars.get(self.cpos).copied()
     }
 
-    pub fn advance(&mut self) -> Option<char> {
+    fn advance(&mut self) -> Option<char> {
         let c = self.peek()?;
         self.cpos += 1;
         if c == '\n' {
@@ -58,7 +58,7 @@ impl Lexer {
         Some(c)
     }
 
-    pub fn skip_whitespace(&mut self) {
+    fn skip_whitespace(&mut self) {
         while let Some(c) = self.peek() {
             if c == ' ' || c == '\n' || c == '\t' {
                 self.advance();
@@ -67,6 +67,38 @@ impl Lexer {
             }
         }
     }
+
+    fn peek_next(&self) -> Option<char> {
+        self.chars.get(self.cpos + 1).copied()
+    }
+
+    fn read_number(&mut self, first: char) -> Result<Token, String> {
+        let mut text = String::new();
+        text.push(first);
+
+        while let Some(c) = self.peek() {
+            if c.is_ascii_digit() {
+                self.advance();
+                text.push(c);
+            } else {
+                break;
+            }
+        }
+        if self.peek() == Some('.') && matches!(self.peek_next(), Some('0'..='9')) {
+            self.advance();
+            text.push('.');
+            while let Some(c) = self.peek() {
+                if c.is_ascii_digit() {
+                    self.advance();
+                    text.push(c);
+                } else {
+                    break;
+                }
+            }
+        }
+        Ok(Token::Number(text.parse::<f64>().unwrap()))
+    }
+
     pub fn next_token(&mut self) -> Result<Token, String> {
         self.skip_whitespace();
         match self.advance() {
@@ -107,6 +139,7 @@ impl Lexer {
                     }
                     _ => Ok(Token::Greater),
                 },
+                c if c.is_ascii_digit() => self.read_number(c),
                 _ => Err(format!(
                     "Unexpected character '{}' on line {}",
                     c, self.cline
