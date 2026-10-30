@@ -11,6 +11,13 @@ pub enum Token {
     Star,
     Slash,
     Equal,
+    EqualEqual,
+    Bang,
+    BangEqual,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
 
     // punctuation
     LParen,
@@ -69,10 +76,37 @@ impl Lexer {
                 '-' => Ok(Token::Minus),
                 '*' => Ok(Token::Star),
                 '/' => Ok(Token::Slash),
-                '=' => Ok(Token::Equal),
                 '(' => Ok(Token::LParen),
                 ')' => Ok(Token::RParen),
                 ';' => Ok(Token::Semicolon),
+                '=' => match self.peek() {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::EqualEqual)
+                    }
+                    _ => Ok(Token::Equal),
+                },
+                '!' => match self.peek() {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::BangEqual)
+                    }
+                    _ => Ok(Token::Bang),
+                },
+                '<' => match self.peek() {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::LessEqual)
+                    }
+                    _ => Ok(Token::Less),
+                },
+                '>' => match self.peek() {
+                    Some('=') => {
+                        self.advance();
+                        Ok(Token::GreaterEqual)
+                    }
+                    _ => Ok(Token::Greater),
+                },
                 _ => Err(format!(
                     "Unexpected character '{}' on line {}",
                     c, self.cline
